@@ -24,15 +24,14 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/ref
 🎮 Supported Games
 
 ⛵ - BABFT
+
 🥷 -	Demon Soul Simulator
 
 ⚠️ If the game is not supported, the script will automatically kick the player ! 
 
 👤 Developer
 
-Kondax
-
-Solo developer of AetherX Hub
+Kondax - Solo developer of AetherX Hub
 
 
 🗓️ Created in 2025
