@@ -21,6 +21,8 @@ Use the loader below to run AetherX Hub:
 loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/refs/heads/main/Loader"))()
 ```
 
+---
+
 🎮 Supported Games
 
 ⛵ - BABFT
@@ -29,10 +31,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/ref
 
 ⚠️ If the game is not supported, the script will automatically kick the player ! 
 
+---
+
 👤 Developer
 
 Kondax - Solo developer of AetherX Hub
-
 
 🗓️ Created in 2025
 🔄 updated and improved
