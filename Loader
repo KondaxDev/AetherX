@@ -1,0 +1,9 @@
+local gameId = game.GameId
+
+if gameId == 537413528 then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/refs/heads/main/BABFT"))()
+elseif gameId == 8069117419 then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/refs/heads/main/DemonSoulSimulator"))()
+else
+    game.Players.LocalPlayer:Kick("the actual game isn't supported")
+end
