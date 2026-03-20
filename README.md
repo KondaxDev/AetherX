@@ -23,7 +23,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/ref
 
 ---
 
-🎮 Supported Games
+## 🎮 Supported Games
 
 ⛵ - BABFT
 
@@ -33,7 +33,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/ref
 
 ---
 
-👤 Developer
+## 👤 Developer
 
 Kondax - Solo developer of AetherX Hub
 
