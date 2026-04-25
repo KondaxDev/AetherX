@@ -4,7 +4,7 @@ if gameId == 537413528 then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/refs/heads/main/BABFT"))()
 elseif gameId == 8069117419 then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/refs/heads/main/DemonSoulSimulator"))()
-elseif gameID == 139233844569220 then
+elseif gameId == 7785400752 then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/refs/heads/main/Zoo%20Or%20OOF"))()
 else
     game.Players.LocalPlayer:Kick("the actual game isn't supported")
