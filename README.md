@@ -7,7 +7,7 @@ This project is designed to provide a smooth and easy experience with supported 
 
 ## 🚀 Features
 
-- 🔑 **100% Keyless** — no annoying key system
+- 🔑 **66,7% Keyless** — no annoying key system
 - ⚡ Fast execution
 - 🛠️ maintained (solo project)
 
@@ -25,9 +25,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/ref
 
 ## 🎮 Supported Games
 
-⛵ - BABFT
+⛵ - BABFT (KEYLESS)
 
-🥷 -	Demon Soul Simulator
+🥷 -	Demon Soul Simulator (KEYLESS)
+
+🦒 - Zoo Or OOF (REQUIRE KEY)
 
 ⚠️ If the game is not supported, the script will automatically kick the player ! 
 
