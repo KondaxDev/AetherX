@@ -1,0 +1,541 @@
+-- ============================================================
+-- KINGHUB — CLIENT SCRIPT
+-- ============================================================
+
+local NexusLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Theo985/AnimeRangerX/refs/heads/main/NexusLib.lua"))()
+if not NexusLib then return end
+
+local Window = NexusLib:CreateWindow({
+    Title      = "AetherX",
+    Subtitle   = "Keyless",
+    Size       = UDim2.new(0, 580, 0, 520),
+    GameName   = "Don't Get Crush by 67",
+    ConfigName = "crush67_AetherX",
+    KeyName    = "Keyless",
+})
+
+-- ============================================================
+-- VARIABLES
+-- ============================================================
+
+local FlyEnabled = false
+local FlyConnection = nil
+local FlySpeed = 50
+local AutoFarmEnabled = false
+local AutoFarmConnection = nil
+local AutoWalkSpeedEnabled = false
+local AutoWalkSpeedConnection = nil
+local AutoCashEnabled = false
+local AutoCashConnection = nil
+local AutoHealthEnabled = false
+local AutoHealthConnection = nil
+local AutoRebirthEnabled = false
+local AutoRebirthConnection = nil
+local SpeedEnabled = false
+local CurrentSpeed = 16
+local NoclipEnabled = false
+local NoclipConnection = nil
+local NoclipParts = {}
+local FovEnabled = false
+local CurrentFov = 70
+
+-- ============================================================
+-- FLY FUNCTION
+-- ============================================================
+
+local function StartFly()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+
+    local hrp = character.HumanoidRootPart
+
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bodyVelocity.Parent = hrp
+
+    FlyConnection = game:GetService("RunService").RenderStepped:Connect(function()
+        if not FlyEnabled then
+            bodyVelocity:Destroy()
+            FlyConnection:Disconnect()
+            return
+        end
+
+        local camera = workspace.CurrentCamera
+        local moveDirection = Vector3.new(0, 0, 0)
+        local UIS = game:GetService("UserInputService")
+
+        if UIS:IsKeyDown(Enum.KeyCode.W) then
+            moveDirection = moveDirection + (camera.CFrame.LookVector * Vector3.new(1, 0, 1)).Unit
+        end
+        if UIS:IsKeyDown(Enum.KeyCode.S) then
+            moveDirection = moveDirection - (camera.CFrame.LookVector * Vector3.new(1, 0, 1)).Unit
+        end
+        if UIS:IsKeyDown(Enum.KeyCode.A) then
+            moveDirection = moveDirection - camera.CFrame.RightVector
+        end
+        if UIS:IsKeyDown(Enum.KeyCode.D) then
+            moveDirection = moveDirection + camera.CFrame.RightVector
+        end
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then
+            moveDirection = moveDirection + Vector3.new(0, 1, 0)
+        end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then
+            moveDirection = moveDirection - Vector3.new(0, 1, 0)
+        end
+
+        if moveDirection.Magnitude > 0 then
+            moveDirection = moveDirection.Unit
+        end
+
+        bodyVelocity.Velocity = moveDirection * FlySpeed
+    end)
+end
+
+-- ============================================================
+-- HOME TAB
+-- ============================================================
+
+local HomeTab = Window:AddHomeTab("Home")
+
+HomeTab:AddSection("Welcome")
+HomeTab:AddLabel("AetherX — Script Keyless")
+HomeTab:AddSeparator()
+HomeTab:AddSection("Quick Actions")
+HomeTab:AddButton({
+    Name        = "Welcome Message",
+    Description = "Affiche une notification de bienvenue.",
+    Callback    = function()
+        Window:Notify({ Title="AetherX", Message="Welcome ! Script loaded.", Type="Success", Duration=3 })
+    end,
+})
+
+-- ============================================================
+-- MAIN TAB
+-- ============================================================
+
+local MainTab = Window:AddTab("Main")
+
+MainTab:AddSection("Upgrades")
+
+MainTab:AddButton({
+    Name     = "Upgrade WalkSpeed",
+    Callback = function()
+        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CashShop"):InvokeServer("Upgrade", "WalkSpeed")
+    end,
+})
+
+MainTab:AddButton({
+    Name     = "Upgrade Cash",
+    Callback = function()
+        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CashShop"):InvokeServer("Upgrade", "Cash")
+    end,
+})
+
+MainTab:AddButton({
+    Name     = "Upgrade Health",
+    Callback = function()
+        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CashShop"):InvokeServer("Upgrade", "Health")
+    end,
+})
+
+MainTab:AddSeparator()
+MainTab:AddSection("Actions")
+
+MainTab:AddButton({
+    Name     = "Rebirth",
+    Callback = function()
+        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("rebirthReq"):FireServer()
+    end,
+})
+
+MainTab:AddButton({
+    Name     = "Skip Tutorial",
+    Callback = function()
+        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("initiateTutorial"):InvokeServer(true)
+    end,
+})
+
+MainTab:AddSeparator()
+MainTab:AddSection("Auto Farm")
+
+MainTab:AddToggle({
+    Name     = "Auto Farm",
+    Default  = false,
+    SaveKey  = "auto_farm",
+    Callback = function(Value)
+        AutoFarmEnabled = Value
+        if Value then
+            AutoFarmConnection = game:GetService("RunService").Heartbeat:Connect(function()
+                if not AutoFarmEnabled then
+                    AutoFarmConnection:Disconnect()
+                    return
+                end
+                pcall(function()
+                    local winPart = workspace.Worlds.BloodMoon.Nodes.Win
+                    if winPart then
+                        local player = game.Players.LocalPlayer
+                        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                            player.Character.HumanoidRootPart.CFrame = winPart.CFrame
+                        end
+                    end
+                end)
+                wait(0.5)
+            end)
+        else
+            if AutoFarmConnection then AutoFarmConnection:Disconnect() end
+        end
+    end,
+})
+
+-- ============================================================
+-- UPGRADE TAB
+-- ============================================================
+
+local UpgradeTab = Window:AddTab("Upgrade")
+
+UpgradeTab:AddSection("Auto Upgrades")
+
+UpgradeTab:AddToggle({
+    Name     = "Auto Upgrade WalkSpeed",
+    Default  = false,
+    SaveKey  = "auto_walkspeed",
+    Callback = function(Value)
+        AutoWalkSpeedEnabled = Value
+        if Value then
+            AutoWalkSpeedConnection = game:GetService("RunService").Heartbeat:Connect(function()
+                if not AutoWalkSpeedEnabled then
+                    AutoWalkSpeedConnection:Disconnect()
+                    return
+                end
+                pcall(function()
+                    game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CashShop"):InvokeServer("Upgrade", "WalkSpeed")
+                end)
+                wait(3)
+            end)
+        else
+            if AutoWalkSpeedConnection then AutoWalkSpeedConnection:Disconnect() end
+        end
+    end,
+})
+
+UpgradeTab:AddToggle({
+    Name     = "Auto Upgrade Cash",
+    Default  = false,
+    SaveKey  = "auto_cash",
+    Callback = function(Value)
+        AutoCashEnabled = Value
+        if Value then
+            AutoCashConnection = game:GetService("RunService").Heartbeat:Connect(function()
+                if not AutoCashEnabled then
+                    AutoCashConnection:Disconnect()
+                    return
+                end
+                pcall(function()
+                    game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CashShop"):InvokeServer("Upgrade", "Cash")
+                end)
+                wait(3)
+            end)
+        else
+            if AutoCashConnection then AutoCashConnection:Disconnect() end
+        end
+    end,
+})
+
+UpgradeTab:AddToggle({
+    Name     = "Auto Upgrade Health",
+    Default  = false,
+    SaveKey  = "auto_health",
+    Callback = function(Value)
+        AutoHealthEnabled = Value
+        if Value then
+            AutoHealthConnection = game:GetService("RunService").Heartbeat:Connect(function()
+                if not AutoHealthEnabled then
+                    AutoHealthConnection:Disconnect()
+                    return
+                end
+                pcall(function()
+                    game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CashShop"):InvokeServer("Upgrade", "Health")
+                end)
+                wait(3)
+            end)
+        else
+            if AutoHealthConnection then AutoHealthConnection:Disconnect() end
+        end
+    end,
+})
+
+UpgradeTab:AddSeparator()
+UpgradeTab:AddSection("Auto Rebirth")
+
+UpgradeTab:AddToggle({
+    Name     = "Auto Rebirth",
+    Default  = false,
+    SaveKey  = "auto_rebirth",
+    Callback = function(Value)
+        AutoRebirthEnabled = Value
+        if Value then
+            AutoRebirthConnection = game:GetService("RunService").Heartbeat:Connect(function()
+                if not AutoRebirthEnabled then
+                    AutoRebirthConnection:Disconnect()
+                    return
+                end
+                pcall(function()
+                    game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("rebirthReq"):FireServer()
+                end)
+                wait(3)
+            end)
+        else
+            if AutoRebirthConnection then AutoRebirthConnection:Disconnect() end
+        end
+    end,
+})
+
+-- ============================================================
+-- PLAYER TAB
+-- ============================================================
+
+local PlayerTab = Window:AddTab("Player")
+
+PlayerTab:AddSection("Speed")
+
+PlayerTab:AddToggle({
+    Name     = "Speed Hack",
+    Default  = false,
+    SaveKey  = "speed_hack",
+    Callback = function(Value)
+        SpeedEnabled = Value
+        local player = game.Players.LocalPlayer
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = Value and CurrentSpeed or 16
+        end
+    end,
+})
+
+PlayerTab:AddSlider({
+    Name     = "Walk Speed",
+    Min      = 16,
+    Max      = 1000,
+    Default  = 16,
+    SaveKey  = "walk_speed",
+    Callback = function(Value)
+        CurrentSpeed = Value
+        if SpeedEnabled then
+            local player = game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("Humanoid") then
+                player.Character.Humanoid.WalkSpeed = Value
+            end
+        end
+    end,
+})
+
+PlayerTab:AddSeparator()
+PlayerTab:AddSection("Téléportation")
+
+PlayerTab:AddDropdown({
+    Name     = "Teleport Location",
+    List     = { "BloodMoon", "Toxic", "Fire" },
+    Default  = "BloodMoon",
+    SaveKey  = "tp_location",
+    Callback = function(Selected)
+        local player = game.Players.LocalPlayer
+        if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+        local hrp = player.Character.HumanoidRootPart
+        if Selected == "BloodMoon" then
+            hrp.CFrame = CFrame.new(5.31, 2.36, -4335.42)
+        elseif Selected == "Toxic" then
+            hrp.CFrame = CFrame.new(5.31, 2.36, -2461.42)
+        elseif Selected == "Fire" then
+            hrp.CFrame = CFrame.new(5.31, 2.36, -949.41)
+        end
+    end,
+})
+
+PlayerTab:AddSeparator()
+PlayerTab:AddSection("Fly")
+
+PlayerTab:AddToggle({
+    Name     = "Fly",
+    Default  = false,
+    SaveKey  = "fly_enabled",
+    Callback = function(Value)
+        FlyEnabled = Value
+        if Value then StartFly() end
+    end,
+})
+
+PlayerTab:AddSlider({
+    Name     = "Fly Speed",
+    Min      = 10,
+    Max      = 1000,
+    Default  = 50,
+    SaveKey  = "fly_speed",
+    Callback = function(Value)
+        FlySpeed = Value
+    end,
+})
+
+PlayerTab:AddSeparator()
+PlayerTab:AddSection("Noclip")
+
+PlayerTab:AddToggle({
+    Name     = "Noclip",
+    Default  = false,
+    SaveKey  = "noclip",
+    Callback = function(Value)
+        NoclipEnabled = Value
+        if Value then
+            local player = game.Players.LocalPlayer
+            if player.Character then
+                for _, part in pairs(player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        table.insert(NoclipParts, part)
+                        part.CanCollide = false
+                    end
+                end
+            end
+            NoclipConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                if not NoclipEnabled then
+                    NoclipConnection:Disconnect()
+                    for _, part in pairs(NoclipParts) do
+                        if part and part.Parent then part.CanCollide = true end
+                    end
+                    NoclipParts = {}
+                    return
+                end
+            end)
+        else
+            if NoclipConnection then NoclipConnection:Disconnect() end
+            for _, part in pairs(NoclipParts) do
+                if part and part.Parent then part.CanCollide = true end
+            end
+            NoclipParts = {}
+        end
+    end,
+})
+
+-- ============================================================
+-- CAMERA TAB
+-- ============================================================
+
+local CameraTab = Window:AddTab("Camera")
+
+CameraTab:AddSection("Field of View")
+
+CameraTab:AddToggle({
+    Name     = "Custom FOV",
+    Default  = false,
+    SaveKey  = "fov_enabled",
+    Callback = function(Value)
+        FovEnabled = Value
+        workspace.CurrentCamera.FieldOfView = Value and CurrentFov or 70
+    end,
+})
+
+CameraTab:AddSlider({
+    Name     = "Field of View",
+    Min      = 30,
+    Max      = 120,
+    Default  = 70,
+    SaveKey  = "fov_value",
+    Callback = function(Value)
+        CurrentFov = Value
+        if FovEnabled then
+            workspace.CurrentCamera.FieldOfView = Value
+        end
+    end,
+})
+
+-- ============================================================
+-- CUSTOMIZATION (system tab — order 0)
+-- ============================================================
+
+local CustomTab = Window:AddSystemTab("Customization", nil, 0)
+
+CustomTab:AddSection("Accent Color")
+CustomTab:AddColorPicker({
+    Name     = "Accent Color",
+    Default  = Color3.fromRGB(110, 90, 230),
+    SaveKey  = "accent_color",
+    Callback = function(color)
+        NexusLib.SetTheme({ Accent=color, TabActive=color, ToggleOn=color, SliderFill=color })
+    end,
+})
+CustomTab:AddSeparator()
+CustomTab:AddSection("Tab Colors")
+CustomTab:AddColorPicker({ Name="Active Tab",   Default=Color3.fromRGB(110,90,230), SaveKey="tab_active",   Callback=function(c) NexusLib.SetTheme({TabActive=c}) end })
+CustomTab:AddColorPicker({ Name="Inactive Tab", Default=Color3.fromRGB(28,28,40),   SaveKey="tab_inactive", Callback=function(c) NexusLib.SetTheme({TabInactive=c}) end })
+CustomTab:AddSeparator()
+CustomTab:AddSection("Text Colors")
+CustomTab:AddColorPicker({ Name="Primary Text",   Default=Color3.fromRGB(225,225,240), SaveKey="text_primary",   Callback=function(c) NexusLib.SetTheme({TextPrimary=c}) end })
+CustomTab:AddColorPicker({ Name="Secondary Text", Default=Color3.fromRGB(135,135,160), SaveKey="text_secondary", Callback=function(c) NexusLib.SetTheme({TextSecondary=c}) end })
+CustomTab:AddColorPicker({ Name="Window Title",   Default=Color3.fromRGB(235,235,250), SaveKey="title_color",    Callback=function(c) NexusLib.SetTheme({TitleColor=c}) end })
+CustomTab:AddSeparator()
+CustomTab:AddSection("Notification Colors")
+CustomTab:AddColorPicker({ Name="Success", Default=Color3.fromRGB(72,190,120), SaveKey="notify_success", Callback=function(c) NexusLib.SetTheme({NotifySuccess=c}) end })
+CustomTab:AddColorPicker({ Name="Warning", Default=Color3.fromRGB(210,165,60), SaveKey="notify_warning", Callback=function(c) NexusLib.SetTheme({NotifyWarning=c}) end })
+CustomTab:AddColorPicker({ Name="Error",   Default=Color3.fromRGB(200,70,70),  SaveKey="notify_error",   Callback=function(c) NexusLib.SetTheme({NotifyError=c}) end })
+CustomTab:AddSeparator()
+CustomTab:AddSection("Presets")
+CustomTab:AddButton({ Name="Purple (Default)", Callback=function() NexusLib.SetTheme({ Accent=Color3.fromRGB(110,90,230), TabActive=Color3.fromRGB(110,90,230), ToggleOn=Color3.fromRGB(110,90,230), SliderFill=Color3.fromRGB(110,90,230) }) end })
+CustomTab:AddButton({ Name="Blood Red",        Callback=function() NexusLib.SetTheme({ Accent=Color3.fromRGB(200,50,50),  TabActive=Color3.fromRGB(200,50,50),  ToggleOn=Color3.fromRGB(200,50,50),  SliderFill=Color3.fromRGB(200,50,50)  }) end })
+CustomTab:AddButton({ Name="Ocean Blue",       Callback=function() NexusLib.SetTheme({ Accent=Color3.fromRGB(50,140,230), TabActive=Color3.fromRGB(50,140,230), ToggleOn=Color3.fromRGB(50,140,230), SliderFill=Color3.fromRGB(50,140,230) }) end })
+CustomTab:AddButton({ Name="Forest Green",     Callback=function() NexusLib.SetTheme({ Accent=Color3.fromRGB(70,185,100), TabActive=Color3.fromRGB(70,185,100), ToggleOn=Color3.fromRGB(70,185,100), SliderFill=Color3.fromRGB(70,185,100) }) end })
+
+-- ============================================================
+-- SETTINGS (system tab — order 1)
+-- ============================================================
+
+local SettingsTab = Window:AddSystemTab("Settings", nil, 1)
+
+SettingsTab:AddSection("General")
+SettingsTab:AddToggle({
+    Name     = "Auto-save Settings",
+    Default  = true,
+    SaveKey  = "auto_save",
+    Callback = function(v) end,
+})
+SettingsTab:AddSlider({
+    Name     = "Notification Duration",
+    Min      = 1,
+    Max      = 10,
+    Default  = 3,
+    Suffix   = " sec",
+    SaveKey  = "notify_dur",
+    Callback = function(v) end,
+})
+SettingsTab:AddSeparator()
+SettingsTab:AddSection("Access")
+SettingsTab:AddLabel("This script is keyless, no need to join the discord or redeem a key. Enjoy !")
+
+-- ============================================================
+-- INFO (system tab — order 2)
+-- ============================================================
+
+local InfoTab = Window:AddSystemTab("Info", nil, 2)
+
+InfoTab:AddSection("About")
+InfoTab:AddLabel("AetherX — Script Keyless")
+InfoTab:AddLabel("Built with AetherX v1.2")
+InfoTab:AddLabel("Features:")
+InfoTab:AddLabel("• Auto Farm / Auto Upgrade / Auto Rebirth")
+InfoTab:AddLabel("• Speed Hack, Fly, Noclip")
+InfoTab:AddLabel("• Teleport (BloodMoon, Toxic, Fire)")
+InfoTab:AddLabel("• Custom FOV")
+InfoTab:AddLabel("• Full RGB Customization")
+InfoTab:AddSeparator()
+InfoTab:AddSection("Keyboard Shortcuts")
+
+-- ============================================================
+-- WELCOME NOTIFICATION
+-- ============================================================
+
+Window:Notify({
+    Title    = "AetherX Loaded !",
+    Message  = "Welcome — Keyless Script, Good Luck !",
+    Type     = "Success",
+    Duration = 4,
+})
+
+print("[AetherX] Loaded successfully.")
