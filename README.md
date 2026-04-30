@@ -31,6 +31,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/KondaxDev/AetherX/ref
 
 🦒 - Zoo Or OOF (REQUIRE KEY)
 
+🧱 - Don't Get Crush By 67 (KEYLESS)
+
 ⚠️ If the game is not supported, the script will automatically kick the player ! 
 
 ---
